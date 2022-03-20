@@ -260,8 +260,24 @@ python3 challenge.py < test
 ```
 the script quit as read receive EOF signal.
 One trick is to use cat.
+
 ```
 cat test - | python3 challenge.py
 ```
 
 ![image](https://i.ibb.co/PhdHmQH/flipflap2.png)
+
+
+
+## Camera
+
+In this challenge we were given an image and asked to find the original.
+
+Using an image reverse search engine reveals that the name of the place is thewillowsbnb.
+Searching google we got a website but no image but we can use the wayback machine to get older versions of the website.
+
+![original image](https://i.ibb.co/P1jC6zK/asdf.png)
+
+all we need to do now is to get the md5sum of the image and get the model of camera using exiftool.
+
+
