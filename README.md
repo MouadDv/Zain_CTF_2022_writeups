@@ -193,7 +193,7 @@ if __name__ == "__main__":
         main()
 ```
 
-1. The service read a name, the name gets checked if it contain "admin", if not it creat a json string.
+1. The service read a name, the name gets checked if it contain "admin", if not it create a json string.
 
 ```
 name = input("Enter your name: ")
