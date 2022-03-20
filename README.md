@@ -1,6 +1,6 @@
 # Zain_CTF_2022_writeups
 
-Challenges covered in this writeup are: equat1onz, Email Address, flipflap, camera, Duck, Fish
+Challenges covered in this writeup are: equat1onz, Email Address, flipflap, camera
 
 ## equat1onz
 
