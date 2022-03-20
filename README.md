@@ -77,8 +77,10 @@ OUTPUT:
 ```
 flag{InvolutionS_ar3_easy_peasy_?_squizy}
 ```
-We can see that the flag is still missing one character ever after trying all ascii character. a quick search for lemon on utf.
+We can see that the flag is still missing one character ever after trying all ascii character. a quick search for lemon on utf and replacing the missing character did the trick.
 
-```
-flag{InvolutionS_ar3_easy_peasy_🍋_squizy}
-```
+
+
+## Email Address
+
+
