@@ -264,4 +264,4 @@ One trick is to use cat.
 cat test - | python3 challenge.py
 ```
 
-![image]https://i.ibb.co/PhdHmQH/flipflap2.png
+![image](https://i.ibb.co/PhdHmQH/flipflap2.png)
