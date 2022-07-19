@@ -16,15 +16,15 @@ Let's execute the binary.
 
 ![./take-it-easy](https://pouch.jumpshare.com/preview/7MlrxrrC7lC1fLIyllR8XvdoDB-u6fFgxxlA0ec3_ifr268PTCZ_oX1v4Q1NpCUdH_5BUel3Fq_kXqVIVHC5bxA1jQB_zmxltR5bgJ1-nls)
 
-As you can see that the binary output input and read characters from the stdin, After that output checkser and read again. Let's use gdb to examine what's happening.
+As you can see that the binary output "input" and read characters from the stdin, After that output "checkser" and read again. Let's use gdb to examine what's happening.
 
 *NOTE: Remember that it is a stripped binary so no symbols are available, we need to break at the entry point address 0x400144*
 
 ![gdb take-it-easy](https://pouch.jumpshare.com/preview/bnDtseOR67PEK6j0LtLkudqvKTKEiLcTtURiqQ4-t0DN7SNmTUG5C9KRUe0AaiezR6DQnalSTy3EhLe3szKU4BA1jQB_zmxltR5bgJ1-nls)
 
-You can use the gdb to go step by step with instructions and use ***i r*** to list the registers and examin they values.
+You can use the gdb to go step by step with instructions and use ***i r*** to list the registers and examine there values.
 
-[GDB-PEDA](https://github.com/longld/peda) is a great extention that will help you visualize the register and the stack more easily.
+[GDB-PEDA](https://github.com/longld/peda) is a great extension that will help you visualize the register and the stack more easily.
 
 This is the instructions the binary contain:
 
@@ -102,9 +102,9 @@ Let's run the debugger and see if we can understand what's going on.
 
 ![gdb take-it-easy](https://pouch.jumpshare.com/preview/xZkkhLGGgCjy_l4-s9YEWNqvAuxNqR8NWdIN0Mgk9h6r-wn3395rj10n486AkehIYwo3AGyPdvSQKNUULLGFqzJprjKJn4snkOQIlHyX-Do)
 
-As you can out input got modified using the xor operation with the $al register wish is read from the time stamp counter. We have no control over the time stamp counter, but knowing the nature of CPU's the time stamp counter is geting incremented each second with an insane speed. 
+As you can see our input got modified using the xor operation with the $al register wish is read from the time stamp counter. We have no control over the time stamp counter, but knowing the nature of CPU's the time stamp counter is geting incremented each second with an insane speed. 
 
-The second read syscall allow us to store the directly into the stack. Knowing that all we have to do is write the next instruction address to the stack and return far will pop it giving us controll. But to write our adress to the stack we need to overwrite the value pushed before, thus the program quit as it checks if the stack got tampred with.
+The second read syscall allow us to store directly into the stack. Knowing that all we have to do is write the next instruction address to the stack and return far will pop it giving us control. But to write our address to the stack we need to overwrite the value pushed before, thus the program quit as it checks if the stack got tampred with.
 
 ```
    0x400204:	xor    r11,QWORD PTR [rbx]
@@ -131,9 +131,9 @@ done
 
 ![./exploit.sh](https://pouch.jumpshare.com/preview/7ve7SjqX_uPWYeujlAKeB3wbwPIqfKjQ2C9887EQyctySB8GCtLDMKzYH8nSNiNvOv0AQfWUmJzbl37Sgn2OTxA1jQB_zmxltR5bgJ1-nls)
 
-The first buffer check is bypassed. Know let's inject an address to the stack and see if the can get controll of instruction pointer after the return far call.
+The first buffer check is bypassed. Know let's inject an address to the stack and see if we can get control of the instruction pointer after the return far call.
 
-*I am going to stack to the address of the write checkser address 0x4001a9. We are expecting to see checkser output two times*
+*I am going to write to the stack the address of the write checkser address 0x4001a9. We are expecting to see checkser output two times*
 
 ```
 fo = open("payload", "wb")
@@ -158,7 +158,6 @@ We overlook something. return far does more than pop the instruction address fro
 ```
    0x400214:	mov    rax,0x3c
 ```
-
 
 After using a tool called ropper that look for gadgets in the binary, i found a gadget that call a system call. *int 0x80*
 
@@ -199,6 +198,6 @@ fo.close()
 
 ![gdb](https://pouch.jumpshare.com/preview/AsHoOU5CT2iZHkvVBfqYQNFqH6CvdobkJByIPqsCOUnDXw942AAj4hVveVsUk2l-alTpIrR-BYGnczTHh_-m5BA1jQB_zmxltR5bgJ1-nls)
 
-We can see that olduname got executed succesfully, and also can see that the esp point to an invalid address because of the switch to 32bit mode.
+We can see that olduname got executed succesfully, and also we can see that the esp point to an invalid address because of the switch to 32bit mode.
 
 
