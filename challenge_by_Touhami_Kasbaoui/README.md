@@ -10,7 +10,7 @@ As you can see, it's a stripped x86_64 ELF binary. Let's check the ELF header.
 
 ![readelf -h header](https://pouch.jumpshare.com/preview/BvNXIFjQp8f6YqGbVYaneC7wiItwdnqsmDoPnC9lQo2LDFrfY55bpSL4txKwahbLJmHTIUyC7XoQy9o-VssUUTJprjKJn4snkOQIlHyX-Do)
 
-What we can learn from this is that this binary entry point is at **0x400144**.
+What we can learn from this, is that the entry point to this binary is at **0x400144**.
 
 Let's execute the binary.
 
@@ -52,7 +52,7 @@ This is the instructions the binary contain:
    0x40019b:	cmp    rcx,0x8
    0x40019f:	jl     0x400190                    --------------------------------------------
    0x4001a1:	mov    rax,QWORD PTR [rbx]
-   0x4001a4:	push   rax                         Push the sanitizer buffer to the stack
+   0x4001a4:	push   rax                         Push the modified buffer to the stack
    0x4001a5:	sub    rsp,0x20                    Subtract the rsp pointer
    0x4001a9:	mov    rax,0x1
    0x4001b0:	mov    rdi,0x1
@@ -81,3 +81,14 @@ This is the instructions the binary contain:
    0x400222:	syscall                            exit syscall
 
 ```
+
+The main part that jumped out to me is the loop that modify the buffer we input using the Read Time-Stamp Counter.
+
+[RDTSC](https://c9x.me/x86/html/file_module_x86_id_278.html)
+
+Loads the current value of the processor's time-stamp counter into the EDX:EAX registers. The time-stamp counter is contained in a 64-bit MSR. The high-order 32 bits of the MSR are loaded into the EDX register, and the low-order 32 bits are loaded into the EAX register.
+
+[x86_64 registers](https://wiki.osdev.org/CPU_Registers_x86-64)
+
+![x86_64 registers](https://askcodez.com/images2/155807970253616.png)
+
