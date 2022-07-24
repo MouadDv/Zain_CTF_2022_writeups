@@ -8,7 +8,7 @@ http://tracker.0btemoslab.com/challenges/take-it-easy
 
 As you can see, it's a stripped x86_64 ELF binary. Let's check the ELF header.
 
-![readelf -h header](https://pouch.jumpshare.com/preview/BvNXIFjQp8f6YqGbVYaneC7wiItwdnqsmDoPnC9lQo2LDFrfY55bpSL4txKwahbLJmHTIUyC7XoQy9o-VssUUTJprjKJn4snkOQIlHyX-Do)
+![readelf -h header](https://pouch.jumpshare.com/preview/BvNXIFjQp8f6YqGbVYaneC7wiItwdnqsmDoPnC9lQo2LDFrfY55bpSL4txKwahbLoNhnxBMJByu6RUbd6OsSyTJprjKJn4snkOQIlHyX-Do)
 
 What we can learn from this, is that the entry point to this binary is at **0x400144**.
 
