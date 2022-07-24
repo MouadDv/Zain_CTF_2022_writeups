@@ -14,7 +14,7 @@ What we can learn from this, is that the entry point to this binary is at **0x40
 
 Let's execute the binary.
 
-![./take-it-easy](https://pouch.jumpshare.com/preview/7MlrxrrC7lC1fLIyllR8XvdoDB-u6fFgxxlA0ec3_ifr268PTCZ_oX1v4Q1NpCUdH_5BUel3Fq_kXqVIVHC5bxA1jQB_zmxltR5bgJ1-nls)
+![./take-it-easy](https://pouch.jumpshare.com/preview/7MlrxrrC7lC1fLIyllR8XvdoDB-u6fFgxxlA0ec3_ifr268PTCZ_oX1v4Q1NpCUdR3Qj8xoD7q12d5iqTomIIBA1jQB_zmxltR5bgJ1-nls)
 
 As you can see that the binary output "input" and read characters from the stdin, After that output "checkser" and read again. Let's use gdb to examine what's happening.
 
